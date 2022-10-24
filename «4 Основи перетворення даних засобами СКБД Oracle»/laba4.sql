@@ -31,10 +31,6 @@ TEST_SEQ	1	9999999999999999999999999999	1	N	N	20	84	N	N	N	N
 1.4 Використовуючи СУБД Oracle >= 12 для однієї з таблиць створити генерацію унікальних
 значень PK-колонки через DEFAULT-оператор. Виконати тестове внесення одного рядка до таблиці.
 */
-
-
-
-
 ALTER TABLE ord MODIFY 
 	(order_id number DEFAULT ord_seq.nextval);
 
@@ -42,13 +38,4 @@ ALTER TABLE ord MODIFY
 
 
 
-SELECT columns
-FROM usr
-FULL outer JOIN car
-ON usr.username = car.mode_car;
 
-SELECT 
-	usr.username, 
-	spr.creator
-	FROM usr
-	CROSS JOIN spr;
