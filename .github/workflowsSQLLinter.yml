@@ -1,0 +1,15 @@
+name: SQL Linter
+on:
+  #обробка лише подій типу push
+  push:
+    branches: laboratory--work--10
+jobs:
+  SQLLinter:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code in repository 
+      uses: "actions/checkout@v3"
+    - name: Start SQL Linter
+      run: |
+        pip install sqlfluff
+        sqlfluff lint @GITHUB_WORKSPACE/query.sql --dialect oracle
