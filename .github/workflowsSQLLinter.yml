@@ -2,7 +2,7 @@ name: SQL Linter
 on:
   #обробка лише подій типу push
   push:
-    branches: tasks--laboratory--10
+    branches: tasks--of--labaratory--10
 jobs:
   SQLLinter:
     runs-on: ubuntu-latest
