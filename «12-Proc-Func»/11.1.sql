@@ -1,8 +1,8 @@
 /*
-1.1. Повторіть виконання завдання 4 етапу 1 із попередньої лабораторної роботи:
-? циклічно внести 5000 рядків;
-? визначити загальний час на внесення зазначених рядків;
-? вивести на екран значення часу.
+1.1. РџРѕРІС‚РѕСЂС–С‚СЊ РІРёРєРѕРЅР°РЅРЅСЏ Р·Р°РІРґР°РЅРЅСЏ 4 РµС‚Р°РїСѓ 1 С–Р· РїРѕРїРµСЂРµРґРЅСЊРѕС— Р»Р°Р±РѕСЂР°С‚РѕСЂРЅРѕС— СЂРѕР±РѕС‚Рё:
+? С†РёРєР»С–С‡РЅРѕ РІРЅРµСЃС‚Рё 5000 СЂСЏРґРєС–РІ;
+? РІРёР·РЅР°С‡РёС‚Рё Р·Р°РіР°Р»СЊРЅРёР№ С‡Р°СЃ РЅР° РІРЅРµСЃРµРЅРЅСЏ Р·Р°Р·РЅР°С‡РµРЅРёС… СЂСЏРґРєС–РІ;
+? РІРёРІРµСЃС‚Рё РЅР° РµРєСЂР°РЅ Р·РЅР°С‡РµРЅРЅСЏ С‡Р°СЃСѓ.
 */
 
 CREATE SEQUENCE user_seq
@@ -14,8 +14,9 @@ CREATE TABLE users
   username varchar2(50) NOT NULL,
   CONSTRAINT user_id_pk PRIMARY KEY (user_id)
 );
-
-SET TIMING ON;
+SET SERVEROUTPUT ON
+DECLARE
+t1 number := dbms_utility.get_time();
 
 
 BEGIN
@@ -27,26 +28,38 @@ BEGIN
 					user_seq.NEXTVAL, 
 					'Test');
 	END LOOP;
+    
+DBMS_OUTPUT.enable;
+	DBMS_OUTPUT.PUT_LINE('query elapsed: '||(dbms_utility.get_time() - t1)/100);
 END;
+
+
+
 /*
 PL/SQL procedure successfully completed.
 
-Elapsed: 00:00:00.577
+query elapsed: .53
 */
 /*
-1.2. Повторіть виконання попереднього завдання, порівнявши час виконання
-циклічних внесень рядків, використовуючи два способи: FOR і FORALL.
+1.2. РџРѕРІС‚РѕСЂС–С‚СЊ РІРёРєРѕРЅР°РЅРЅСЏ РїРѕРїРµСЂРµРґРЅСЊРѕРіРѕ Р·Р°РІРґР°РЅРЅСЏ, РїРѕСЂС–РІРЅСЏРІС€Рё С‡Р°СЃ РІРёРєРѕРЅР°РЅРЅСЏ
+С†РёРєР»С–С‡РЅРёС… РІРЅРµСЃРµРЅСЊ СЂСЏРґРєС–РІ, РІРёРєРѕСЂРёСЃС‚РѕРІСѓСЋС‡Рё РґРІР° СЃРїРѕСЃРѕР±Рё: FOR С– FORALL.
 */
 ROLLBACK;
- 
+DECLARE
+t1 number := dbms_utility.get_time();
+
+BEGIN
 FOR i IN 1..5000 LOOP
+
     delete from users;
 end LOOP;
+DBMS_OUTPUT.enable;
+	DBMS_OUTPUT.PUT_LINE('query elapsed: '||(dbms_utility.get_time() - t1)/100);
+END;
 /*
 
-5,000 rows deleted.
+query elapsed: 1.37
 
-Elapsed: 00:00:00.060
 */
     
 FORALL i IN users.FIRST..users.LAST
@@ -58,18 +71,71 @@ END;
 Elapsed: 00:00:00.059
 */
 /*
-1.3. Для однієї з таблиць отримайте рядки з використанням курсору та пакетної
-обробки SELECT-операції з оператором BULK COLLECT.
+1.3. Р”Р»СЏ РѕРґРЅС–С”С— Р· С‚Р°Р±Р»РёС†СЊ РѕС‚СЂРёРјР°Р№С‚Рµ СЂСЏРґРєРё Р· РІРёРєРѕСЂРёСЃС‚Р°РЅРЅСЏРј РєСѓСЂСЃРѕСЂСѓ С‚Р° РїР°РєРµС‚РЅРѕС—
+РѕР±СЂРѕР±РєРё SELECT-РѕРїРµСЂР°С†С–С— Р· РѕРїРµСЂР°С‚РѕСЂРѕРј BULK COLLECT.
 */
 DECLARE
    TYPE User IS TABLE OF users%ROWTYPE;
-   usr_list User;
+   usr_list User;  
 BEGIN
   SELECT user_id, username
      BULK COLLECT INTO usr_list FROM users;
+     
+     
 END;
-/*
-PL/SQL procedure successfully completed.
 
-Elapsed: 00:00:00.233
+DECLARE
+    CURSOR usr_list IS
+	    SELECT
+		    user_id AS id,
+			username AS name
+		FROM usr;
+	usr_list_rec usr_list%ROWTYPE;
+	
+    TYPE Usr IS TABLE OF usr_list%ROWTYPE;
+    usr_list2 Usr;
+BEGIN
+    DBMS_OUTPUT.enable;
+	DBMS_OUTPUT.PUT_LINE('Output with using CURSOR: ');
+    DBMS_OUTPUT.PUT_LINE(RPAD('id', 5) || RPAD('name', 15));
+	FOR usr_list_rec IN usr_list LOOP
+	    DBMS_OUTPUT.PUT_LINE(RPAD(usr_list_rec.id, 5)
+		                          || RPAD(usr_list_rec.name, 15));
+    END LOOP;
+    
+	DBMS_OUTPUT.PUT_LINE('Output with using BULK COLLECT: ');
+	SELECT
+		user_id AS id,
+		username AS name
+	BULK COLLECT INTO usr_list2
+	FROM usr;
+	DBMS_OUTPUT.PUT_LINE('Employee list:');
+	FOR i IN usr_list2.FIRST..usr_list2.LAST LOOP
+        DBMS_OUTPUT.PUT_LINE(usr_list2(i).id || ' : ' || 
+		usr_list2(i).name ||');
+    END LOOP;
+END;
+
+/*
+Output with using CURSOR: 
+id   name           
+66   Alban          
+1    George         
+2    Misha          
+70   Dima           
+25   Ivan           
+26   Anton          
+31   Anatolii       
+32   Ruslan         
+Output with using BULK COLLECT: 
+Employee list:
+66 : Alban : 
+1 : George : 
+2 : Misha : 
+70 : Dima : 
+25 : Ivan : 
+26 : Anton : 
+31 : Anatolii : 
+32 : Ruslan : 
 */
+
