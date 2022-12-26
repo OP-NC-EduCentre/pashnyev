@@ -1,61 +1,74 @@
 /*
-4.1. З урахуванням вашої предметної області створити табличну функцію, що
-повертає значення будь-яких двох колонок будь-якої таблиці з урахуванням значення однієї
-з колонок, що передається як параметр. Показати приклад виклику функції.
+4.1. Р— СѓСЂР°С…СѓРІР°РЅРЅСЏРј РІР°С€РѕС— РїСЂРµРґРјРµС‚РЅРѕС— РѕР±Р»Р°СЃС‚С– СЃС‚РІРѕСЂРёС‚Рё С‚Р°Р±Р»РёС‡РЅСѓ С„СѓРЅРєС†С–СЋ, С‰Рѕ
+РїРѕРІРµСЂС‚Р°С” Р·РЅР°С‡РµРЅРЅСЏ Р±СѓРґСЊ-СЏРєРёС… РґРІРѕС… РєРѕР»РѕРЅРѕРє Р±СѓРґСЊ-СЏРєРѕС— С‚Р°Р±Р»РёС†С– Р· СѓСЂР°С…СѓРІР°РЅРЅСЏРј Р·РЅР°С‡РµРЅРЅСЏ РѕРґРЅС–С”С—
+Р· РєРѕР»РѕРЅРѕРє, С‰Рѕ РїРµСЂРµРґР°С”С‚СЊСЃСЏ СЏРє РїР°СЂР°РјРµС‚СЂ. РџРѕРєР°Р·Р°С‚Рё РїСЂРёРєР»Р°Рґ РІРёРєР»РёРєСѓ С„СѓРЅРєС†С–С—.
 */
-CREATE TYPE Emp_short_info AS OBJECT (
- empno 	NUMBER(4),
- ename 	VARCHAR(10),
- job 	VARCHAR(10)
+DROP TYPE usr_info_list;
+DROP TYPE usr_info;
+
+CREATE TYPE usr_info AS OBJECT (
+	user_id NUMBER(4),
+	username VARCHAR(15)
 );
+/
 
-CREATE TYPE Emp_short_info_List IS TABLE OF Emp_short_info;
+CREATE TYPE usr_info_list IS TABLE OF usr_info;
+/
 
-CREATE OR REPLACE FUNCTION get_emp_list(v_deptno IN NUMBER)
-RETURN Emp_short_info_List 
+CREATE OR REPLACE FUNCTION get_usr_info_by_id (u_id IN NUMBER)
+RETURN usr_info_list
 AS
-	Emp_list Emp_short_info_List := Emp_short_info_List();
+	usr_list usr_info_list := usr_info_list();
 BEGIN
-	-- виконати запит, передавши результат до колекції
- 	SELECT Emp_short_info(empno,ename,job) -- приведення даних до OBJECT-типу
-		 BULK COLLECT INTO Emp_list 
-		 FROM emp
-		 WHERE deptno = v_deptno;
-	-- повернути колекцію 
-	RETURN Emp_list;
+	SELECT usr_info(user_id,username)
+		BULK COLLECT INTO usr_list
+		FROM usr
+		WHERE user_id = u_id;
+	RETURN usr_list;
 END;
+/
 
-CREATE TYPE USR_INFO AS OBJECT (
- user_id 	NUMBER(10), 	
- username VARCHAR(20)
-);
+SELECT user_id, username
+FROM TABLE(get_usr_info_by_id(2));
 
-CREATE TYPE USR_INFO_LIST IS TABLE OF USR_INFO;
-
-CREATE OR REPLACE FUNCTION get_usr_list(v_usr_id IN NUMBER)
-RETURN USR_INFO_LIST
-AS
-	USR_RES USR_INFO_LIST := USR_INFO_LIST();
-BEGIN
- 	SELECT USR_INFO(user_id,username) 
-		 BULK COLLECT INTO USR_RES
-		 FROM users
-		 WHERE user_id = v_usr_id;
-	RETURN USR_RES;
-END;
+/*2	Misha*/
 
 /*
-4.2. Повторіть рішення попереднього завдання, але з використанням конвеєрної
-табличної функції.
+4.2. РџРѕРІС‚РѕСЂС–С‚СЊ СЂС–С€РµРЅРЅСЏ РїРѕРїРµСЂРµРґРЅСЊРѕРіРѕ Р·Р°РІРґР°РЅРЅСЏ, Р°Р»Рµ Р· РІРёРєРѕСЂРёСЃС‚Р°РЅРЅСЏРј РєРѕРЅРІРµС”СЂРЅРѕС—
+С‚Р°Р±Р»РёС‡РЅРѕС— С„СѓРЅРєС†С–С—.
 */
-CREATE OR REPLACE PACKAGE user_pkg IS
-	-- оголошення типу як PL/SQL-запису, що визначається програмістом
-	TYPE USR_INFO IS RECORD (
-		usr_id	NUMBER(10),
-		username VARCHAR(20)
+CREATE OR REPLACE PACKAGE usr_info_pack IS
+	TYPE usr_info IS RECORD (
+		user_id NUMBER(4),
+		username VARCHAR(15)
 	);
-	TYPE USR_INFO_LIST IS TABLE OF USR_INFO;
-	FUNCTION get_usr_list(v_user_id IN NUMBER)
-		RETURN USR_INFO_LIST PIPELINED;
-END user_pkg;
+	TYPE usr_info_list IS TABLE OF usr_info;
+	FUNCTION get_usr_info_by_id (u_id IN NUMBER)
+		RETURN usr_info_list PIPELINED;
+END usr_info_pack;
+/
 
+-- СЃС‚РІРѕСЂРµРЅРЅСЏ С‚С–Р»Р° РїР°РєРµС‚Сѓ
+
+CREATE OR REPLACE PACKAGE BODY usr_info_pack IS
+	FUNCTION get_usr_info_by_id (u_id IN NUMBER)
+		RETURN usr_info_list PIPELINED
+	AS
+	BEGIN
+		FOR elem IN (SELECT user_id, username 
+					FROM usr
+					WHERE user_id = u_id) LOOP
+			PIPE ROW(elem);
+		END LOOP;
+	END;
+END usr_info_pack; 
+/
+
+-- РІРёРєР»РёРє С„СѓРЅРєС†С–С— Р· РїР°РєРµС‚Сѓ
+
+SELECT user_id, username
+FROM TABLE(usr_info_pack.get_usr_info_by_id(2));
+
+/*
+2	Misha
+*/
