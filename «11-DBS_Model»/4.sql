@@ -68,4 +68,4 @@ END;
 /
 
 -- Версія СУБД: 21
--- Виконаний запит: ALTER SEQUENCE slot_id RESTART START WITH 15
+-- Виконаний запит: ALTER SEQUENCE car_id_seq RESTART START WITH 15
