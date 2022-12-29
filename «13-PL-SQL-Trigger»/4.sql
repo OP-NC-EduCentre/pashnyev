@@ -4,16 +4,16 @@
 Створити тригер реєстрації заданих подій створення об'єктів. 
 Подати тест-кейси перевірки роботи тригера.
 */
-CREATE TABLE DLL_WATCHER
+CREATE TABLE DLL_WATCHER_NEW
 (
     operation   VARCHAR2(30),
     username   VARCHAR2(30),
     obj_name    VARCHAR2(30)
 );
 
-CREATE OR REPLACE TRIGGER DLL_WATCHER
+CREATE OR REPLACE TRIGGER DLL_WATCHER_NEW
     AFTER CREATE OR ALTER OR DROP
-    ON ADMIN.SCHEMA
+    ON PASHNYEV.SCHEMA
 BEGIN
     INSERT INTO DLL_WATCHER
     VALUES(
@@ -23,5 +23,21 @@ BEGIN
     );
 END;
 /
+
+CREATE TABLE test
+(
+    something NUMBER(8)
+);
+
+DROP TABLE test;
+
+
+
+select * from DLL_WATCHER
+          
+/*
+CREATE	PASHNYEV	TEST
+DROP	PASHNYEV	TEST
+*/
        
           
