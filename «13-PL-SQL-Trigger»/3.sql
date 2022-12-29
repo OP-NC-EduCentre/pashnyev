@@ -7,14 +7,7 @@
 – створити тригер журналювання.
 Перевірити роботу тригера журналювання для операцій INSERT, UPDATE, DELETE.
 */
-CREATE TABLE LOG_USR (
-	new_manager_id	     NUMBER,	
-	new_manager_name	 CHAR(40),	
-	old_manager_name	 CHAR(40),
-	old_manager_poition	 CHAR(25),	
-	op_type	 	         CHAR(6),		
-	change_date          DATE  
-); 
+
 
 CREATE OR REPLACE TRIGGER LOG_USR
 	AFTER INSERT OR UPDATE OR DELETE ON USR
@@ -31,7 +24,7 @@ BEGIN
 	IF DELETING THEN 
         op_type_ := 'DELETE'; 
     END IF;
-	INSERT INTO LOG_MANAGERS VALUES (
+	INSERT INTO LOG_USR VALUES (
 		:NEW.USER_ID,
 		:NEW.USERNAME,
 		:OLD.USER_ID,
@@ -41,6 +34,15 @@ BEGIN
 	);
 END;
 /
+
+insert into USR (user_id,username) values(73,'Vanya');
+delete from usr where user_id=73
+select * from log_usr
+
+/*
+73	Vanya                                   			INSERT	29-DEC-22
+		73                                      	Vanya                    	DELETE	29-DEC-22
+*/
 /*
 2. Припустимо, що використовується СУБД до 12-ї версії, яка не підтримує механізм
 DEFAULT SEQUENCE, який дозволяє автоматично внести нове значення первинного ключа, 
@@ -64,3 +66,14 @@ BEGIN
 	END IF;
 END;
 /
+drop trigger CLIENT_INSERT_CHECK_MANAGERID_VALID;
+insert into Car (make,mode_car,user_id) values ('Reno','Logan',47)
+/*
+1 row inserted.
+*/
+select * from car where user_id=47;
+
+/*
+Reno	Logan	80	47
+Mers	Benz	67	47
+*/
