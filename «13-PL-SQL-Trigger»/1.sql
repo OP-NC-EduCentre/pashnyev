@@ -39,7 +39,7 @@ DELETING FURNITURE ...
 CREATE OR REPLACE TRIGGER usr_modification
     AFTER INSERT OR UPDATE OR DELETE ON usr
     FOR EACH ROW
-    WHEN (USER = 'pashnyev')
+    WHEN (USER = 'PASHNYEV')
 BEGIN
     IF INSERTING THEN
         dbms_output.put_line('PASHNYEV INSERTING INTO USER ... ');
