@@ -9,4 +9,4 @@ INSERT INTO ORD VALUES(2, 1, CURRENT_DATE);
 INSERT INTO SPR VALUES
 ('Wheel', 'Motors', 1, TO_DATE('2019', 'yyyy'), 800, 1);
 INSERT INTO SPR VALUES
-('Engine','Kawasaki', 2, TO_DATE('2015','yyyy'), 20000, 2);
+('Engine', 'Kawasaki', 2, TO_DATE('2015', 'yyyy'), 20000, 2);
