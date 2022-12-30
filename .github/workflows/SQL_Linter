@@ -1,6 +1,5 @@
 name: SQL Linter
 on:
-  #обробка лише подій типу push
   push:
     branches: tasks--of-labaratory--10
 jobs:
