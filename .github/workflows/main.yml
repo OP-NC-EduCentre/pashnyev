@@ -2,9 +2,10 @@ name: Hello World Workflow
 on:
   push:
     branches:tasks--of-labaratory--10
-  jobs:HelloWorldWorkfow:
-  runs on: ubuntu latest
-    steps:
-      -name: Print Hello World
+  jobs:
+    HelloWorldWorkfow:
+    runs on: ubuntu latest
+      steps:
+      -name: Print Hello World      
       run echo: 'Hello world'
   
